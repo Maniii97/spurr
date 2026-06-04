@@ -14,7 +14,7 @@ A full-stack, real-time AI customer support chat widget built for **ManiiiHeist 
 
 ### Step 1: Clone and Enter the Directory
 ```bash
-git clone <your-repo-url>
+git clone [spurr](https://github.com/Maniii97/spurr)
 cd spurr
 ```
 
