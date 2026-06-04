@@ -7,10 +7,25 @@ import { errorHandler } from './middleware/errorHandler';
 
 const app = express();
 
-// CORS — allow requests from the configured frontend origin
+const allowedOrigins = [
+  env.frontendUrl,
+  'http://localhost:5173',
+];
+
 app.use(
   cors({
-    origin: env.frontendUrl,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, curl, or server-to-server)
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type'],
   }),
