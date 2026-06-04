@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Environment files — never commit secrets
+.env
+**/.env
+
+# Build outputs
+dist/
+**/dist/
+build/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/settings.json
+.idea/
+
+# Drizzle generated
+drizzle/
