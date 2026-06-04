@@ -7,6 +7,17 @@ import { errorHandler } from './middleware/errorHandler';
 
 const app = express();
 
+// Strip Vercel route prefix if present so routes match correctly on deployment
+app.use((req, _res, next) => {
+  if (req.url.startsWith('/_/backend')) {
+    req.url = req.url.slice('/_/backend'.length);
+  }
+  if (!req.url.startsWith('/')) {
+    req.url = '/' + req.url;
+  }
+  next();
+});
+
 const allowedOrigins = [
   env.frontendUrl,
   'http://localhost:5173',
