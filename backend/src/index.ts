@@ -24,22 +24,27 @@ const allowedOrigins = [
 ];
 
 app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps, curl, or server-to-server)
-      if (!origin) {
-        callback(null, true);
-        return;
+  cors((req, callback) => {
+    const origin = req.header('Origin');
+    let isAllowed = false;
+
+    if (!origin) {
+      isAllowed = true;
+    } else if (allowedOrigins.includes(origin)) {
+      isAllowed = true;
+    } else {
+      const host = req.header('Host');
+      if (host && (origin === `https://${host}` || origin === `http://${host}`)) {
+        isAllowed = true;
       }
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    methods: ['GET', 'POST'],
-    allowedHeaders: ['Content-Type'],
-  }),
+    }
+
+    callback(null, {
+      origin: isAllowed,
+      methods: ['GET', 'POST'],
+      allowedHeaders: ['Content-Type'],
+    });
+  })
 );
 
 // Parse JSON bodies
