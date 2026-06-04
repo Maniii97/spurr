@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { eq, asc, desc } from 'drizzle-orm';
 import { db } from '../db/client';
 import { conversations, messages } from '../db/schema';
