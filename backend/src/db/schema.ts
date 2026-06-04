@@ -1,17 +1,18 @@
 import { pgTable, text, bigint, index } from 'drizzle-orm/pg-core';
 
 export const conversations = pgTable('conversations', {
-  id: text('id').primaryKey(),
+  id: text('id').primaryKey().notNull(),
   title: text('title'),
   createdAt: bigint('created_at', { mode: 'number' }).notNull(),
   updatedAt: bigint('updated_at', { mode: 'number' }).notNull(),
   metadata: text('metadata'),
+  deletedAt: bigint('deleted_at', { mode: 'number' }),
 });
 
 export const messages = pgTable(
   'messages',
   {
-    id: text('id').primaryKey(),
+    id: text('id').primaryKey().notNull(),
     conversationId: text('conversation_id')
       .notNull()
       .references(() => conversations.id, { onDelete: 'cascade' }),

@@ -37,3 +37,10 @@ export async function listConversations(): Promise<ConversationSummary[]> {
   const data = await handleResponse<{ conversations: ConversationSummary[] }>(response);
   return data.conversations;
 }
+
+export async function deleteSession(sessionId: string): Promise<void> {
+  const response = await fetch(`${API_URL}/chat/${encodeURIComponent(sessionId)}`, {
+    method: 'DELETE',
+  });
+  await handleResponse<{ success: boolean }>(response);
+}

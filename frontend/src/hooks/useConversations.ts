@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { ConversationSummary } from '@/types';
-import { listConversations } from '@/lib/api';
+import { listConversations, deleteSession } from '@/lib/api';
 
 const SESSION_KEY = 'maniiiheist_chat_session_id';
 
@@ -11,6 +11,7 @@ interface UseConversationsReturn {
   selectConversation: (id: string) => void;
   createNewChat: () => void;
   handleSessionCreated: (id: string, initialTitle?: string) => void;
+  deleteConversation: (id: string) => Promise<void>;
   refreshConversations: () => Promise<void>;
 }
 
@@ -70,6 +71,21 @@ export function useConversations(): UseConversationsReturn {
     [refreshConversations],
   );
 
+  const deleteConversation = useCallback(
+    async (id: string) => {
+      try {
+        await deleteSession(id);
+        if (activeSessionId === id) {
+          createNewChat();
+        }
+        void refreshConversations();
+      } catch (err) {
+        console.error('Failed to delete conversation:', err);
+      }
+    },
+    [activeSessionId, createNewChat, refreshConversations],
+  );
+
   return {
     conversations,
     isLoadingConversations,
@@ -77,6 +93,7 @@ export function useConversations(): UseConversationsReturn {
     selectConversation,
     createNewChat,
     handleSessionCreated,
+    deleteConversation,
     refreshConversations,
   };
 }

@@ -13,6 +13,7 @@ export default function App() {
     selectConversation,
     createNewChat,
     handleSessionCreated,
+    deleteConversation,
     refreshConversations,
   } = useConversations();
 
@@ -36,6 +37,7 @@ export default function App() {
         activeSessionId={activeSessionId}
         onSelect={selectConversation}
         onNewChat={createNewChat}
+        onDelete={deleteConversation}
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />

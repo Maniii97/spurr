@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { eq, asc, desc } from 'drizzle-orm';
+import { eq, asc, desc, and, isNull } from 'drizzle-orm';
 import { db } from '../db/client';
 import { conversations, messages } from '../db/schema';
 import type { MessageRecord, ConversationRecord, ConversationSummary } from '../types';
@@ -10,7 +10,7 @@ export async function findConversationById(
   const result = await db
     .select()
     .from(conversations)
-    .where(eq(conversations.id, sessionId))
+    .where(and(eq(conversations.id, sessionId), isNull(conversations.deletedAt)))
     .limit(1);
 
   return result[0] ?? null;
@@ -58,6 +58,7 @@ export async function listConversations(): Promise<ConversationSummary[]> {
       updatedAt: conversations.updatedAt,
     })
     .from(conversations)
+    .where(isNull(conversations.deletedAt))
     .orderBy(desc(conversations.updatedAt));
 
   return rows.map((row) => ({
@@ -66,6 +67,14 @@ export async function listConversations(): Promise<ConversationSummary[]> {
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   }));
+}
+
+export async function softDeleteConversation(id: string): Promise<void> {
+  const now = Date.now();
+  await db
+    .update(conversations)
+    .set({ deletedAt: now })
+    .where(eq(conversations.id, id));
 }
 
 export async function getConversationMessages(

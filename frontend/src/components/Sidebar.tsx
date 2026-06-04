@@ -1,13 +1,14 @@
 import { cn } from '@/lib/utils';
 import { formatRelativeTime } from '@/lib/utils';
 import type { ConversationSummary } from '@/types';
-import { MessageSquare, Plus, Sparkles, X } from 'lucide-react';
+import { MessageSquare, Plus, Sparkles, X, Trash2 } from 'lucide-react';
 
 interface SidebarProps {
   conversations: ConversationSummary[];
   activeSessionId: string | null;
   onSelect: (id: string) => void;
   onNewChat: () => void;
+  onDelete: (id: string) => void;
   open: boolean;
   onClose: () => void;
 }
@@ -47,6 +48,7 @@ export function Sidebar({
   activeSessionId,
   onSelect,
   onNewChat,
+  onDelete,
   open,
   onClose,
 }: SidebarProps) {
@@ -131,6 +133,7 @@ export function Sidebar({
                         onSelect(conv.id);
                         onClose();
                       }}
+                      onDelete={() => onDelete(conv.id)}
                     />
                   ))}
                 </div>
@@ -147,35 +150,53 @@ interface ConversationItemProps {
   conv: ConversationSummary;
   isActive: boolean;
   onSelect: () => void;
+  onDelete: () => void;
 }
 
-function ConversationItem({ conv, isActive, onSelect }: ConversationItemProps) {
+function ConversationItem({ conv, isActive, onSelect, onDelete }: ConversationItemProps) {
   const title = conv.title ?? 'New conversation';
 
   return (
-    <button
-      onClick={onSelect}
-      title={title}
+    <div
       className={cn(
-        'w-full flex items-start gap-2.5 px-2 py-2 rounded-lg text-left text-sm transition-all duration-150 group',
+        'w-full flex items-center justify-between rounded-lg border transition-all duration-150 group relative',
         isActive
-          ? 'bg-violet-600/15 text-white border border-violet-500/25'
-          : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/6 border border-transparent',
+          ? 'bg-violet-600/15 text-white border-violet-500/25'
+          : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/6 border-transparent',
       )}
     >
-      <MessageSquare
-        size={13}
-        className={cn(
-          'flex-shrink-0 mt-0.5',
-          isActive ? 'text-violet-400' : 'text-zinc-600 group-hover:text-zinc-400',
-        )}
-      />
-      <div className="flex-1 min-w-0">
-        <p className="truncate text-xs font-medium leading-snug">{title}</p>
-        <p className="text-[11px] text-zinc-600 mt-0.5">
-          {formatRelativeTime(conv.updatedAt)}
-        </p>
-      </div>
-    </button>
+      <button
+        onClick={onSelect}
+        title={title}
+        className="flex-1 flex items-start gap-2.5 px-2 py-2 text-left text-sm min-w-0"
+      >
+        <MessageSquare
+          size={13}
+          className={cn(
+            'flex-shrink-0 mt-0.5',
+            isActive ? 'text-violet-400' : 'text-zinc-600 group-hover:text-zinc-400',
+          )}
+        />
+        <div className="flex-1 min-w-0">
+          <p className="truncate text-xs font-medium leading-snug">{title}</p>
+          <p className="text-[11px] text-zinc-600 mt-0.5">
+            {formatRelativeTime(conv.updatedAt)}
+          </p>
+        </div>
+      </button>
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          if (confirm('Are you sure you want to delete this conversation?')) {
+            onDelete();
+          }
+        }}
+        className="opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity p-1.5 mr-1 text-zinc-500 hover:text-red-400 rounded-md hover:bg-white/5 flex-shrink-0"
+        aria-label="Delete conversation"
+        title="Delete conversation"
+      >
+        <Trash2 size={13} />
+      </button>
+    </div>
   );
 }

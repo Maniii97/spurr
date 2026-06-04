@@ -5,6 +5,7 @@ import {
   findConversationById,
   getConversationMessages,
   listConversations,
+  softDeleteConversation,
 } from '../services/conversation.service';
 import type { ChatRequest } from '../types';
 
@@ -54,6 +55,27 @@ router.get(
 
       const msgs = await getConversationMessages(sessionId!);
       res.status(200).json({ sessionId, messages: msgs });
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
+// DELETE /api/chat/:sessionId — soft delete a session
+router.delete(
+  '/:sessionId',
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { sessionId } = req.params;
+
+      const conversation = await findConversationById(sessionId!);
+      if (!conversation) {
+        res.status(404).json({ error: 'Session not found' });
+        return;
+      }
+
+      await softDeleteConversation(sessionId!);
+      res.status(200).json({ success: true });
     } catch (err) {
       next(err);
     }
